@@ -1,0 +1,1626 @@
+[
+  {
+    "binary": "into",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401040",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_40104e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "gets",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "malloc",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401095",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401096",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "_dl_relocate_static_pie",
+    "size": 5,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_4010a5",
+    "size": 11,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "deregister_tm_clones",
+    "size": 33,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_4010d1",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "register_tm_clones",
+    "size": 49,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401111",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "__do_global_dtors_aux",
+    "size": 32,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_40113f",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "sub_401141",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "frame_dummy",
+    "size": 6,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "vuln",
+    "size": 65,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "main",
+    "size": 30,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "gets",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "malloc",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "into",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "gets",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_401075",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_401076",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "_dl_relocate_static_pie",
+    "size": 5,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_401085",
+    "size": 11,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "deregister_tm_clones",
+    "size": 33,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_4010b1",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "register_tm_clones",
+    "size": 49,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_4010f1",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "__do_global_dtors_aux",
+    "size": 32,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_40111f",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "sub_401121",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "frame_dummy",
+    "size": 6,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "vuln",
+    "size": 32,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "main",
+    "size": 25,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "gets",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "buffero",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "printf",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_401075",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_401076",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "_dl_relocate_static_pie",
+    "size": 5,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_401085",
+    "size": 11,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "deregister_tm_clones",
+    "size": 33,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_4010b1",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "register_tm_clones",
+    "size": 49,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_4010f1",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "__do_global_dtors_aux",
+    "size": 32,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_40111f",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "sub_401121",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "frame_dummy",
+    "size": 6,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "vuln",
+    "size": 36,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "main",
+    "size": 51,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "printf",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "format",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_401040",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_40104e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_401050",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_40105e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "free",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "puts",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "malloc",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_4010b5",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_4010b6",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "_dl_relocate_static_pie",
+    "size": 5,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_4010c5",
+    "size": 11,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "deregister_tm_clones",
+    "size": 33,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_4010f1",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "register_tm_clones",
+    "size": 49,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_401131",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "__do_global_dtors_aux",
+    "size": 32,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_40115f",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "sub_401161",
+    "size": 15,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "frame_dummy",
+    "size": 6,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "vuln",
+    "size": 53,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "main",
+    "size": 25,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "free",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "puts",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "malloc",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "uaf",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_401040",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_40104e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "__cxa_finalize",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "__stack_chk_fail",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "fgets",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_4010a5",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_4010a6",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "deregister_tm_clones",
+    "size": 41,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_4010d9",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "register_tm_clones",
+    "size": 57,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_401119",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "__do_global_dtors_aux",
+    "size": 54,
+    "basic_blocks": 6,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_401155",
+    "size": 3,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "sub_401159",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "frame_dummy",
+    "size": 9,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "safe",
+    "size": 74,
+    "basic_blocks": 4,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "main",
+    "size": 25,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "__stack_chk_fail",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "fgets",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safei",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401040",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_40104e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401050",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_40105e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "__cxa_finalize",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "free",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "puts",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "malloc",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_4010c5",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_4010c6",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "deregister_tm_clones",
+    "size": 41,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_4010f9",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "register_tm_clones",
+    "size": 57,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401139",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "__do_global_dtors_aux",
+    "size": 54,
+    "basic_blocks": 6,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401175",
+    "size": 3,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "sub_401179",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "frame_dummy",
+    "size": 9,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "safe",
+    "size": 73,
+    "basic_blocks": 7,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "main",
+    "size": 25,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "free",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "puts",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "malloc",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_malloc",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_401040",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_40104e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "__cxa_finalize",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "free",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "malloc",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_4010a5",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_4010a6",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "deregister_tm_clones",
+    "size": 41,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_4010d9",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "register_tm_clones",
+    "size": 57,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_401119",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "__do_global_dtors_aux",
+    "size": 54,
+    "basic_blocks": 6,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_401155",
+    "size": 3,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "sub_401159",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "frame_dummy",
+    "size": 9,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "safe",
+    "size": 90,
+    "basic_blocks": 9,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "main",
+    "size": 30,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "free",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "malloc",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_int",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "_init",
+    "size": 27,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_401020",
+    "size": 12,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_40102c",
+    "size": 4,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_401030",
+    "size": 14,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_40103e",
+    "size": 2,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "__cxa_finalize",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "printf",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "_start",
+    "size": 37,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_401085",
+    "size": 1,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_401086",
+    "size": 10,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "deregister_tm_clones",
+    "size": 41,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_4010b9",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "register_tm_clones",
+    "size": 57,
+    "basic_blocks": 5,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_4010f9",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "__do_global_dtors_aux",
+    "size": 54,
+    "basic_blocks": 6,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_401135",
+    "size": 3,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "sub_401139",
+    "size": 7,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "frame_dummy",
+    "size": 9,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "safe",
+    "size": 46,
+    "basic_blocks": 2,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "main",
+    "size": 51,
+    "basic_blocks": 3,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "_fini",
+    "size": 13,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "__libc_start_main",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "printf",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "UnresolvableJumpTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  },
+  {
+    "binary": "safe_format",
+    "function": "UnresolvableCallTarget",
+    "size": 0,
+    "basic_blocks": 1,
+    "unsafe_call": 0
+  }
+]

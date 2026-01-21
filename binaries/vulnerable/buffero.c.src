@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <string.h>
+
+void vuln() {
+    char buf[64];
+    gets(buf);
+}
+
+int main() {
+    vuln();
+    return 0;
+}

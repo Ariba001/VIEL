@@ -1,0 +1,161 @@
+{
+  "binary": "binaries/vulnerable/buffero",
+  "functions": [
+    {
+      "name": "_init",
+      "address": "0x401000",
+      "size": 27,
+      "blocks": 3
+    },
+    {
+      "name": "sub_401020",
+      "address": "0x401020",
+      "size": 12,
+      "blocks": 1
+    },
+    {
+      "name": "sub_40102c",
+      "address": "0x40102c",
+      "size": 4,
+      "blocks": 1
+    },
+    {
+      "name": "sub_401030",
+      "address": "0x401030",
+      "size": 14,
+      "blocks": 1
+    },
+    {
+      "name": "sub_40103e",
+      "address": "0x40103e",
+      "size": 2,
+      "blocks": 1
+    },
+    {
+      "name": "gets",
+      "address": "0x401040",
+      "size": 10,
+      "blocks": 1
+    },
+    {
+      "name": "_start",
+      "address": "0x401050",
+      "size": 37,
+      "blocks": 1
+    },
+    {
+      "name": "sub_401075",
+      "address": "0x401075",
+      "size": 1,
+      "blocks": 1
+    },
+    {
+      "name": "sub_401076",
+      "address": "0x401076",
+      "size": 10,
+      "blocks": 1
+    },
+    {
+      "name": "_dl_relocate_static_pie",
+      "address": "0x401080",
+      "size": 5,
+      "blocks": 1
+    },
+    {
+      "name": "sub_401085",
+      "address": "0x401085",
+      "size": 11,
+      "blocks": 1
+    },
+    {
+      "name": "deregister_tm_clones",
+      "address": "0x401090",
+      "size": 33,
+      "blocks": 5
+    },
+    {
+      "name": "sub_4010b1",
+      "address": "0x4010b1",
+      "size": 15,
+      "blocks": 1
+    },
+    {
+      "name": "register_tm_clones",
+      "address": "0x4010c0",
+      "size": 49,
+      "blocks": 4
+    },
+    {
+      "name": "sub_4010f1",
+      "address": "0x4010f1",
+      "size": 15,
+      "blocks": 1
+    },
+    {
+      "name": "__do_global_dtors_aux",
+      "address": "0x401100",
+      "size": 32,
+      "blocks": 4
+    },
+    {
+      "name": "sub_40111f",
+      "address": "0x40111f",
+      "size": 1,
+      "blocks": 1
+    },
+    {
+      "name": "sub_401121",
+      "address": "0x401121",
+      "size": 15,
+      "blocks": 1
+    },
+    {
+      "name": "frame_dummy",
+      "address": "0x401130",
+      "size": 6,
+      "blocks": 1
+    },
+    {
+      "name": "vuln",
+      "address": "0x401136",
+      "size": 32,
+      "blocks": 2
+    },
+    {
+      "name": "main",
+      "address": "0x401156",
+      "size": 25,
+      "blocks": 2
+    },
+    {
+      "name": "_fini",
+      "address": "0x401170",
+      "size": 13,
+      "blocks": 1
+    },
+    {
+      "name": "__libc_start_main",
+      "address": "0x500000",
+      "size": 0,
+      "blocks": 1
+    },
+    {
+      "name": "gets",
+      "address": "0x500008",
+      "size": 0,
+      "blocks": 1
+    },
+    {
+      "name": "UnresolvableJumpTarget",
+      "address": "0x601050",
+      "size": 0,
+      "blocks": 1
+    },
+    {
+      "name": "UnresolvableCallTarget",
+      "address": "0x601058",
+      "size": 0,
+      "blocks": 1
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.python-version
+
+# angr / analysis cache
+*.log
+*.tmp
+
+# Compiled binaries
+format
+uaf
+into
+buffero
+safe_*
+binaries_augmented/
+
+# External tools
+pwndbg/
+
+# OS
+.DS_Store
+
+# Lock files (optional)
+uv.lock
+
