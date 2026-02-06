@@ -2,6 +2,8 @@ import angr
 import json
 import os
 import subprocess
+from analysis.symbolic.symbolic_features import extract_symbolic_features
+
 
 BIN_DIRS = [
     "binaries/vulnerable",
@@ -43,6 +45,10 @@ def analyze_binary(binary_path):
             "basic_blocks": len(list(func.blocks)),
             "unsafe_call": has_unsafe,
         }
+
+        sym_feats = extract_symbolic_features(binary_path)
+
+        feature.update(sym_feats)
 
         all_features.append(feature)
 

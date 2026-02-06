@@ -25,3 +25,4 @@ pwndbg/
 # Lock files (optional)
 uv.lock
 
+.venv/
