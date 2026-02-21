@@ -12,4 +12,6 @@ dependencies = [
     "scikit-learn",
     "matplotlib",
     "pyyaml",
+    "seaborn>=0.13.2",
+    "pyelftools>=0.32",
 ]
