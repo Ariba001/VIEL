@@ -1,14 +1,24 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
 venv/
+.venv/
 .python-version
+
+# Environment — copy .env.example and fill in your values, never commit .env
+.env
 
 # angr / analysis cache
 *.log
 *.tmp
 
-# Compiled binaries
+# Generated outputs (re-created by the pipeline)
+ai_sec_lab/c_src/
+analysis/autoghidra/analysed_output/report.csv
+ghidra_projects/
+
+# Compiled binaries (re-created by generate_dataset.py)
 format
 uaf
 into
@@ -16,13 +26,22 @@ buffero
 safe_*
 binaries_augmented/
 
+# Trained model artefacts
+*.pkl
+*.joblib
+*.pt
+*.pth
+
 # External tools
 pwndbg/
 
 # OS
 .DS_Store
+Thumbs.db
 
-# Lock files (optional)
+# IDE
+.idea/
+.vscode/
+
+# Lock files (optional — commit if you want reproducible installs)
 uv.lock
-
-.venv/

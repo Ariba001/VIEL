@@ -1,27 +1,19 @@
-from pathlib import Path
 import subprocess
-# ---- PROJECT ROOT ----
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-GHIDRA_HEADLESS = Path("/home/giyu20/tools/ghidra/support/analyzeHeadless")
-
-GHIDRA_PROJECT_DIR = PROJECT_ROOT / "ghidra_projects"
-SCRIPT_PATH = PROJECT_ROOT / "analysis" / "autoghidra" / "scripts"
-
-OUTPUT_CSV = PROJECT_ROOT / "analysis" / "autoghidra" / "analysed_output" / "report.csv"
-
-BINARY_PATH = PROJECT_ROOT / "ai_sec_lab" / "binaries"
+from analysis.autoghidra.config import (
+    GHIDRA_HEADLESS,
+    GHIDRA_PROJECT_DIR,
+    GHIDRA_SCRIPT_DIR,
+    OUTPUT_CSV,
+    BINARY_PATH,
+)
 
 
 def run_analysis():
-
     if not BINARY_PATH.exists():
         raise FileNotFoundError(f"Binary path not found: {BINARY_PATH}")
 
     GHIDRA_PROJECT_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-
-    label = 1
 
     cmd = [
         str(GHIDRA_HEADLESS),
@@ -29,15 +21,15 @@ def run_analysis():
         "analysis_project",
         "-overwrite",
         "-import", str(BINARY_PATH.resolve()),
-        "-scriptPath", str(SCRIPT_PATH.resolve()),
+        "-scriptPath", str(GHIDRA_SCRIPT_DIR.resolve()),
         "-postScript", "feature_extractor.java",
         str(OUTPUT_CSV.resolve()),
-        label
+        "1",  # label arg passed to the Java script (must be a string)
     ]
 
-    print("Running Ghidra Headless...")
+    print("Running Ghidra headless analysis...")
     subprocess.run(cmd, check=True)
-    print("Done.")
+    print(f"Done. Output written to: {OUTPUT_CSV}")
 
 
 if __name__ == "__main__":

@@ -508,64 +508,73 @@ int main(int argc,char *argv[]){
 """, 0),
 }
 
-rows = []
+def main():
+    import platform
+    if platform.system() == "Windows":
+        print("[WARNING] Dataset generation compiles Linux ELF binaries using gcc.")
+        print("          This requires WSL2 or Docker on Windows.")
+        print("          Run this script inside WSL2 or a Docker container.")
+        print()
 
-for name, (template, label) in templates.items():
+    rows = []
 
-    for i in range(10):  # 10 variations
+    for name, (template, label) in templates.items():
 
-        size = random.randint(16, 128)
-        loops = random.randint(10000, 200000)
+        for i in range(10):  # 10 variations
 
-        # Safe formatting even if template doesn't use size/loops
-        code = template
-        code = code.replace("{size}", str(size))
-        code = code.replace("{loops}", str(loops))
+            size = random.randint(16, 128)
+            loops = random.randint(10000, 200000)
+
+            code = template
+            code = code.replace("{size}", str(size))
+            code = code.replace("{loops}", str(loops))
+
+            src_file = os.path.join(SRC_DIR, f"{name}_{i}.c")
+
+            with open(src_file, "w") as f:
+                f.write(code)
+
+            for arch_name, compiler in architectures.items():
+
+                for opt in optimization_flags:
+
+                    bin_name = f"{name}_{i}_{arch_name}_{opt.replace('-', '')}"
+                    bin_path = os.path.join(BIN_DIR, bin_name)
+
+                    compile_cmd = [
+                        compiler,
+                        src_file,
+                        "-o", bin_path,
+                        opt,
+                        "-fno-stack-protector",
+                        "-no-pie",
+                    ]
+
+                    if "race" in name:
+                        compile_cmd.append("-lpthread")
+
+                    result = subprocess.run(
+                        compile_cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                    )
+
+                    if result.returncode != 0:
+                        print(f"[ERROR] Failed compiling {bin_name}")
+                        print(result.stderr.decode())
+                        continue
+
+                    rows.append([bin_name, label])
+
+    with open(LABEL_FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["filename", "label"])
+        writer.writerows(rows)
+
+    print("Dataset generation complete.")
+    print(f"Binaries saved in: {BIN_DIR}")
+    print(f"Labels saved in: {LABEL_FILE}")
 
 
-        src_file = os.path.join(SRC_DIR, f"{name}_{i}.c")
-
-        with open(src_file, "w") as f:
-            f.write(code)
-
-        for arch_name, compiler in architectures.items():
-
-            for opt in optimization_flags:
-
-                bin_name = f"{name}_{i}_{arch_name}_{opt.replace('-', '')}"
-                bin_path = os.path.join(BIN_DIR, bin_name)
-
-                compile_cmd = [
-                    compiler,
-                    src_file,
-                    "-o", bin_path,
-                    opt,
-                    "-fno-stack-protector",
-                    "-no-pie"
-                ]
-
-                # Add pthread if race condition
-                if "race" in name:
-                    compile_cmd.append("-lpthread")
-
-                result = subprocess.run(
-                    compile_cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-
-                if result.returncode != 0:
-                    print(f"[ERROR] Failed compiling {bin_name}")
-                    print(result.stderr.decode())
-                    continue
-
-                rows.append([bin_name, label])
-
-with open(LABEL_FILE, "w", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(["filename", "label"])
-    writer.writerows(rows)
-
-print("Dataset generation complete.")
-print(f"Binaries saved in: {BIN_DIR}")
-print(f"Labels saved in: {LABEL_FILE}")
+if __name__ == "__main__":
+    main()

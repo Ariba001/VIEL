@@ -1,9 +1,17 @@
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parent
+load_dotenv()
 
-GHIDRA_HEADLESS = "/home/giyu20/tools/ghidra/support/analyzeHeadless"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-GHIDRA_PROJECT_DIR = BASE_DIR / "ghidra_projects"
-GHIDRA_SCRIPT_DIR = BASE_DIR / "ghidra_scripts"
-OUTPUT_JSON = BASE_DIR / "analysis_output" / "report.json"
+# Set GHIDRA_HEADLESS in your .env file or as an environment variable.
+# Linux/macOS : /path/to/ghidra/support/analyzeHeadless
+# Windows     : C:\path\to\ghidra\support\analyzeHeadless.bat
+GHIDRA_HEADLESS = os.getenv("GHIDRA_HEADLESS", "analyzeHeadless")
+
+GHIDRA_PROJECT_DIR = PROJECT_ROOT / "ghidra_projects"
+GHIDRA_SCRIPT_DIR  = PROJECT_ROOT / "analysis" / "autoghidra" / "scripts"
+OUTPUT_CSV         = PROJECT_ROOT / "analysis" / "autoghidra" / "analysed_output" / "report.csv"
+BINARY_PATH        = PROJECT_ROOT / "ai_sec_lab" / "binaries"

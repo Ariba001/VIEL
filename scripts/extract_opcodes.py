@@ -1,136 +1,89 @@
+"""
+Extract per-function opcode token sequences from ELF binaries.
+
+Produces ai_sec_lab/opcode_dataset_semantic.csv with columns:
+    binary, function, tokens, label
+
+One row per function (not per binary). Labels are derived from the
+function name: any function whose name contains 'vuln' gets label=1.
+Falls back to binary-level label from labels.csv when the binary is
+stripped (no .symtab) and whole-binary mode is used instead.
+"""
+
 import os
 import csv
-from capstone import *
-from elftools.elf.elffile import ELFFile
+import sys
+
+# Support running as `python scripts/extract_opcodes.py` (script mode)
+# or `python -m scripts.extract_opcodes` (module mode) from project root.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from scripts.opcode_utils import extract_functions_from_binary
 
 BASE_DIR = "ai_sec_lab"
 BIN_DIR = os.path.join(BASE_DIR, "binaries")
 LABEL_FILE = os.path.join(BASE_DIR, "labels.csv")
 OUTPUT_FILE = os.path.join(BASE_DIR, "opcode_dataset_semantic.csv")
 
-md = Cs(CS_ARCH_X86, CS_MODE_64)
-md.detail = True
 
-# -------------------------------------------------
-# Build PLT address → symbol name mapping
-# -------------------------------------------------
+def main():
+    # Binary-level labels used as fallback for stripped binaries
+    binary_labels = {}
+    with open(LABEL_FILE, newline="") as f:
+        for row in csv.DictReader(f):
+            binary_labels[row["filename"]] = int(row["label"])
 
-def build_plt_symbol_map(elf):
-    symbol_map = {}
+    rows = []
+    skipped = 0
 
-    plt_section = elf.get_section_by_name(".plt")
-    rel_plt = elf.get_section_by_name(".rela.plt") or elf.get_section_by_name(".rel.plt")
-    dynsym = elf.get_section_by_name(".dynsym")
+    for binary_name in sorted(os.listdir(BIN_DIR)):
+        path = os.path.join(BIN_DIR, binary_name)
+        if not os.path.isfile(path):
+            continue
 
-    if not plt_section or not rel_plt or not dynsym:
-        return symbol_map
+        functions = extract_functions_from_binary(path)
 
-    plt_addr = plt_section["sh_addr"]
-    entry_size = 16
-
-    for idx, rel in enumerate(rel_plt.iter_relocations()):
-        symbol_idx = rel.entry["r_info_sym"]
-        symbol = dynsym.get_symbol(symbol_idx)
-        symbol_name = symbol.name
-
-        plt_entry_addr = plt_addr + (idx + 1) * entry_size
-
-        symbol_map[plt_entry_addr] = symbol_name
-
-    return symbol_map
-
-
-# -------------------------------------------------
-# Normalize instruction (with semantic calls)
-# -------------------------------------------------
-
-def normalize_instruction(insn, symbol_map):
-    mnemonic = insn.mnemonic
-
-    if mnemonic == "call":
-        if insn.operands and insn.operands[0].type == CS_OP_IMM:
-            target = insn.operands[0].imm
-
-            if target in symbol_map:
-                return f"call_{symbol_map[target]}"
-            else:
-                return "call_internal"
-
-        return "call_indirect"
-
-
-    operand_types = []
-
-    for op in insn.operands:
-        if op.type == CS_OP_REG:
-            operand_types.append("reg")
-        elif op.type == CS_OP_IMM:
-            operand_types.append("imm")
-        elif op.type == CS_OP_MEM:
-            operand_types.append("mem")
-
-    if operand_types:
-        return f"{mnemonic}_{'_'.join(operand_types)}"
-
-    return mnemonic
-
-
-# -------------------------------------------------
-# Load labels
-# -------------------------------------------------
-
-labels = {}
-with open(LABEL_FILE, "r") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        labels[row["filename"]] = row["label"]
-
-
-rows = []
-
-for binary in os.listdir(BIN_DIR):
-
-    path = os.path.join(BIN_DIR, binary)
-
-    if not os.path.isfile(path):
-        continue
-
-    try:
-        with open(path, "rb") as f:
-            elf = ELFFile(f)
-
-            text_section = elf.get_section_by_name(".text")
-            if not text_section:
+        if functions:
+            for func in functions:
+                label = 1 if "vuln" in func["function"].lower() else 0
+                rows.append([binary_name, func["function"], func["tokens"], label])
+        else:
+            # Stripped binary — fall back to whole-binary label
+            bin_label = binary_labels.get(binary_name)
+            if bin_label is None:
+                skipped += 1
                 continue
+            # Import whole-binary extraction inline to avoid circular deps
+            from elftools.elf.elffile import ELFFile
+            from scripts.opcode_utils import build_plt_symbol_map, normalize_instruction, _md
+            try:
+                with open(path, "rb") as f:
+                    elf = ELFFile(f)
+                    text = elf.get_section_by_name(".text")
+                    if not text:
+                        skipped += 1
+                        continue
+                    sym_map = build_plt_symbol_map(elf)
+                    tokens = [
+                        normalize_instruction(insn, sym_map)
+                        for insn in _md.disasm(text.data(), text["sh_addr"])
+                    ]
+                if tokens:
+                    rows.append([binary_name, "<whole_binary>", " ".join(tokens[:4000]), bin_label])
+                else:
+                    skipped += 1
+            except Exception:
+                skipped += 1
 
-            symbol_map = build_plt_symbol_map(elf)
+    with open(OUTPUT_FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["binary", "function", "tokens", "label"])
+        writer.writerows(rows)
 
-            code = text_section.data()
-            addr = text_section["sh_addr"]
+    print(f"Saved {len(rows)} rows to {OUTPUT_FILE}")
+    vuln = sum(1 for r in rows if r[3] == 1)
+    print(f"  {vuln} vulnerable  /  {len(rows) - vuln} safe  (skipped {skipped})")
 
-            tokens = []
 
-            for insn in md.disasm(code, addr):
-                token = normalize_instruction(insn, symbol_map)
-                tokens.append(token)
-
-            if not tokens:
-                continue
-
-            token_string = " ".join(tokens[:4000])
-            label = labels.get(binary)
-
-            if label is None:
-                continue
-
-            rows.append([binary, token_string, label])
-
-    except Exception as e:
-        print(f"Error processing {binary}: {e}")
-
-with open(OUTPUT_FILE, "w", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(["filename", "tokens", "label"])
-    writer.writerows(rows)
-
-print("Semantic dataset with PLT resolution created.")
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,16 @@
+services:
+  viel:
+    build: .
+    volumes:
+      # Mount your local Ghidra installation into the container.
+      # Change the left side to wherever Ghidra is installed on your machine.
+      - /opt/ghidra:/ghidra:ro
+      # Persist generated binaries and outputs across runs.
+      - ./ai_sec_lab:/app/ai_sec_lab
+      - ./analysis/autoghidra/analysed_output:/app/analysis/autoghidra/analysed_output
+      - ./ghidra_projects:/app/ghidra_projects
+    environment:
+      - GHIDRA_HEADLESS=/ghidra/support/analyzeHeadless
+    # Keep the container alive so you can exec into it
+    stdin_open: true
+    tty: true
