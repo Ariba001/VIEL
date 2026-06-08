@@ -129,6 +129,59 @@ def predict_ghidra(binary_path: str):
     console.print(f"\n[{color}]{vuln_count}/{total} function(s) flagged as vulnerable.[/{color}]")
 
 
+# ── angr Random Forest ───────────────────────────────────────────────────────
+
+def predict_angr(binary_path: str):
+    model_path    = MODELS_DIR / "angr_rf.pkl"
+    features_path = MODELS_DIR / "angr_features.pkl"
+
+    if not model_path.exists():
+        console.print("[red]angr model not found.[/red]")
+        console.print("Run: [bold]python scripts/extract_angr_features.py[/bold]")
+        console.print("Then: [bold]python ml/vuln_detection/angr_classifier.py[/bold]")
+        sys.exit(1)
+
+    try:
+        from analysis.static.angr_engine import extract_binary_features
+    except ImportError:
+        console.print("[red]angr is not installed. Run: pip install angr[/red]")
+        sys.exit(1)
+
+    import pandas as pd
+    model    = joblib.load(model_path)
+    features = joblib.load(features_path)
+
+    console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (angr RF model)...")
+    console.print("[dim]Running CFG analysis — may take a few seconds...[/dim]")
+
+    functions = extract_binary_features(binary_path)
+
+    if not functions:
+        console.print("[yellow]No functions extracted — binary may not be ELF or unsupported.[/yellow]")
+        return
+
+    df = pd.DataFrame(functions)
+    X  = df[features].apply(pd.to_numeric, errors="coerce").fillna(0).values
+    preds = model.predict(X)
+    probs = model.predict_proba(X)
+
+    table = Table(title=f"Results: {Path(binary_path).name} (angr RF)", box=box.ROUNDED)
+    table.add_column("Function",   style="cyan", no_wrap=True)
+    table.add_column("Verdict",    style="bold")
+    table.add_column("Confidence", justify="right")
+
+    for func, pred, prob in zip(functions, preds, probs):
+        verdict = "[red]VULNERABLE[/red]" if pred == 1 else "[green]SAFE[/green]"
+        table.add_row(func["function"], verdict, f"{max(prob):.1%}")
+
+    console.print(table)
+
+    vuln_count = int(preds.sum())
+    total      = len(preds)
+    color      = "red" if vuln_count else "green"
+    console.print(f"\n[{color}]{vuln_count}/{total} function(s) flagged as vulnerable.[/{color}]")
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -139,12 +192,13 @@ def main():
 Examples:
   python predict.py ai_sec_lab/binaries/arm_stack_vuln_0_x86_O0
   python predict.py path/to/binary --model ghidra
+  python predict.py path/to/binary --model angr
         """,
     )
     parser.add_argument("binary", help="Path to the ELF binary to analyse")
     parser.add_argument(
         "--model",
-        choices=["tfidf", "ghidra"],
+        choices=["tfidf", "ghidra", "angr"],
         default="tfidf",
         help="Which model to use (default: tfidf)",
     )
@@ -156,8 +210,10 @@ Examples:
 
     if args.model == "tfidf":
         predict_tfidf(args.binary)
-    else:
+    elif args.model == "ghidra":
         predict_ghidra(args.binary)
+    else:
+        predict_angr(args.binary)
 
 
 if __name__ == "__main__":
