@@ -154,19 +154,14 @@ def _extract_function_features(proj, func, plt_name_map):
     }
 
 
-def extract_binary_features(binary_path):
+def extract_features_from_project(proj):
     """
-    Extract per-function CFG and instruction-level features from an ELF binary.
+    Extract per-function features from an already-loaded and analysed Project.
 
-    Returns a list of dicts, each containing "function" (str) and one key per
-    FEATURES entry. Returns [] if angr cannot load or analyse the binary.
+    Each returned dict has "function" (str), "addr" (int), and one key per
+    FEATURES entry. Exposed so callers that already hold a Project (e.g.
+    graph_builder) can avoid loading the binary a second time.
     """
-    try:
-        proj = angr.Project(str(binary_path), auto_load_libs=False)
-        proj.analyses.CFGFast(normalize=True, resolve_indirect_jumps=False)
-    except Exception:
-        return []
-
     plt_name_map = {
         addr: func.name
         for addr, func in proj.kb.functions.items()
@@ -174,7 +169,7 @@ def extract_binary_features(binary_path):
     }
 
     results = []
-    for _, func in proj.kb.functions.items():
+    for func_addr, func in proj.kb.functions.items():
         if func.is_plt or func.is_syscall:
             continue
         if not func.name or func.name.startswith(_SKIP_PREFIXES):
@@ -185,6 +180,23 @@ def extract_binary_features(binary_path):
             continue
 
         features["function"] = func.name
+        features["addr"] = func_addr
         results.append(features)
 
     return results
+
+
+def extract_binary_features(binary_path):
+    """
+    Extract per-function CFG and instruction-level features from an ELF binary.
+
+    Returns a list of dicts, each containing "function" (str), "addr" (int),
+    and one key per FEATURES entry. Returns [] if angr cannot load the binary.
+    """
+    try:
+        proj = angr.Project(str(binary_path), auto_load_libs=False)
+        proj.analyses.CFGFast(normalize=True, resolve_indirect_jumps=False)
+    except Exception:
+        return []
+
+    return extract_features_from_project(proj)
