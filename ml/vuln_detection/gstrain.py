@@ -1,4 +1,4 @@
-﻿"""
+"""
 Train and evaluate the GraphSAGE binary vulnerability classifier.
 
 Input : ai_sec_lab/graphs.pt        (produced by scripts/build_graphs.py)
@@ -28,6 +28,7 @@ from torch_geometric.loader import DataLoader
 
 from ml.vuln_detection.graphsage import GraphSAGEClassifier
 from analysis.static.angr_engine import FEATURES
+from analysis.static.graph_builder import GRAPH_NODE_FEATURES
 
 GRAPHS_PT  = "ai_sec_lab/graphs.pt"
 MODELS_DIR = Path("models")
@@ -90,7 +91,7 @@ test_loader  = DataLoader(test_graphs,  batch_size=BATCH_SIZE, shuffle=False)
 
 # ── Model + optimiser ─────────────────────────────────────────────────────────
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model  = GraphSAGEClassifier(in_channels=len(FEATURES), hidden=HIDDEN, dropout=DROPOUT).to(device)
+model  = GraphSAGEClassifier(in_channels=GRAPH_NODE_FEATURES, hidden=HIDDEN, dropout=DROPOUT).to(device)
 optim  = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
 
 # Class weights to handle imbalance

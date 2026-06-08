@@ -1,10 +1,19 @@
 """
 Build binary-level function call graphs (FCG) from ELF binaries using angr.
 
-Each binary → one PyTorch Geometric Data object:
-    x          : [N, 15]  node features (per-function angr features)
-    edge_index : [2, E]   directed call edges (caller → callee)
-    y          : [1]      binary-level vulnerability label (0=safe, 1=vuln)
+Graph representation (upgraded):
+    User function nodes  [N_user]: 15 angr features + is_library=0, is_unsafe_lib=0
+    Library function nodes [N_lib]: zeros + is_library=1, is_unsafe_lib={0,1}
+
+    Directed edges:
+        user  -> user     inter-function calls within user code
+        user  -> library  calls to imported PLT functions (strcpy, malloc, ...)
+
+    Adding library nodes exposes structural patterns like
+        main -> vulnerable -> strcpy
+    as graph topology rather than encoding it only as a node feature.
+
+GRAPH_NODE_FEATURES = len(FEATURES) + 2  (exported for model/trainer use)
 """
 
 import logging
@@ -18,17 +27,22 @@ import angr
 import torch
 from torch_geometric.data import Data
 
-from analysis.static.angr_engine import extract_features_from_project, FEATURES
+from analysis.static.angr_engine import extract_features_from_project, FEATURES, UNSAFE_FUNCS
+
+# Node feature dimension: 15 per-function angr features + 2 node-type flags
+GRAPH_NODE_FEATURES = len(FEATURES) + 2
 
 
 def build_binary_graph(binary_path, label):
     """
     Build a PyG Data object for one binary.
 
-    Loads the binary with angr, runs CFGFast, extracts per-function node
-    features, and builds directed edges from angr's call graph.
+    User-defined functions become nodes with 15 angr features.
+    Called PLT library functions are added as extra nodes with zero CFG
+    features and two type flags (is_library=1, is_unsafe_lib={0,1}).
+    Edges cover both user->user and user->library call relationships.
 
-    Returns None if the binary cannot be loaded or yields no user functions.
+    Returns None if angr cannot load the binary or no user functions exist.
     """
     try:
         proj = angr.Project(str(binary_path), auto_load_libs=False)
@@ -40,22 +54,61 @@ def build_binary_graph(binary_path, label):
     if not func_features:
         return None
 
-    # Map function address → node index (avoids name-collision issues)
+    # User function address -> node index  (0 .. N_user-1)
     addr_to_idx = {f["addr"]: i for i, f in enumerate(func_features)}
 
-    # Node feature matrix [N, len(FEATURES)]
-    x = torch.tensor(
-        [[f[feat] for feat in FEATURES] for f in func_features],
-        dtype=torch.float,
-    )
+    # PLT address -> symbol name
+    plt_name_map = {
+        addr: func.name
+        for addr, func in proj.kb.functions.items()
+        if func.is_plt and func.name
+    }
 
-    # Directed call edges from angr's call graph (caller → callee)
+    # Discover library function nodes that user functions actually call.
+    # lib_addr -> node index  (N_user .. N_user+N_lib-1)
+    lib_addr_to_idx = {}
+    lib_nodes = []  # (name, is_unsafe)
+
+    try:
+        for src_addr, dst_addr in proj.kb.callgraph.edges():
+            if src_addr not in addr_to_idx:
+                continue
+            if dst_addr in addr_to_idx or dst_addr in lib_addr_to_idx:
+                continue
+            lib_name = plt_name_map.get(dst_addr)
+            if lib_name is None:
+                continue
+            lib_addr_to_idx[dst_addr] = len(addr_to_idx) + len(lib_nodes)
+            lib_nodes.append((lib_name, lib_name in UNSAFE_FUNCS))
+    except Exception:
+        pass
+
+    # ── Node feature matrix [N_user + N_lib, GRAPH_NODE_FEATURES] ────────────
+    N = len(func_features) + len(lib_nodes)
+    x = torch.zeros(N, GRAPH_NODE_FEATURES, dtype=torch.float)
+
+    for i, f in enumerate(func_features):
+        for j, feat_name in enumerate(FEATURES):
+            x[i, j] = float(f[feat_name])
+        # x[i, -2] = 0  (is_library)
+        # x[i, -1] = 0  (is_unsafe_lib)
+
+    for i, (lib_name, is_unsafe) in enumerate(lib_nodes):
+        idx = len(func_features) + i
+        x[idx, -2] = 1.0             # is_library
+        x[idx, -1] = float(is_unsafe)  # is_unsafe_lib
+
+    # ── Directed call edges (user->user and user->library) ────────────────────
     edge_src, edge_dst = [], []
     try:
         for src_addr, dst_addr in proj.kb.callgraph.edges():
             si = addr_to_idx.get(src_addr)
+            if si is None:
+                continue
             di = addr_to_idx.get(dst_addr)
-            if si is not None and di is not None and si != di:
+            if di is None:
+                di = lib_addr_to_idx.get(dst_addr)
+            if di is not None and si != di:
                 edge_src.append(si)
                 edge_dst.append(di)
     except Exception:

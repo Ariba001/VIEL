@@ -182,6 +182,72 @@ def predict_angr(binary_path: str):
     console.print(f"\n[{color}]{vuln_count}/{total} function(s) flagged as vulnerable.[/{color}]")
 
 
+# ── GraphSAGE GNN ─────────────────────────────────────────────────────────────
+
+def predict_graphsage(binary_path: str):
+    model_path  = MODELS_DIR / "graphsage.pt"
+    scaler_path = MODELS_DIR / "graphsage_scaler.pt"
+
+    for p, name in [(model_path, "graphsage.pt"), (scaler_path, "graphsage_scaler.pt")]:
+        if not p.exists():
+            console.print(f"[red]{name} not found.[/red]")
+            console.print("Run: [bold]python scripts/build_graphs.py[/bold]")
+            console.print("Then: [bold]python ml/vuln_detection/gstrain.py[/bold]")
+            sys.exit(1)
+
+    try:
+        import torch
+        import torch.nn.functional as F
+        from torch_geometric.data import Batch
+        from analysis.static.graph_builder import build_binary_graph, GRAPH_NODE_FEATURES
+        from ml.vuln_detection.graphsage import GraphSAGEClassifier
+    except ImportError as e:
+        console.print(f"[red]Import error: {e}[/red]")
+        console.print("Run: [bold]pip install angr torch torch_geometric[/bold]")
+        sys.exit(1)
+
+    console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (GraphSAGE GNN)...")
+    console.print("[dim]Building function call graph — may take a few seconds...[/dim]")
+
+    g = build_binary_graph(binary_path, label=0)
+    if g is None:
+        console.print("[yellow]Could not build graph — binary may not be ELF or is unsupported.[/yellow]")
+        return
+
+    scaler = torch.load(scaler_path, weights_only=True)
+    g.x = (g.x - scaler["mean"]) / scaler["std"]
+
+    model = GraphSAGEClassifier(in_channels=GRAPH_NODE_FEATURES)
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    model.eval()
+
+    batch = Batch.from_data_list([g])
+    with torch.no_grad():
+        out  = model(batch.x, batch.edge_index, batch.batch)
+        prob = F.softmax(out, dim=1)
+        pred = out.argmax(dim=1).item()
+        conf = prob[0, pred].item()
+
+    color   = "red" if pred == 1 else "green"
+    verdict = f"[{color}]{'VULNERABLE' if pred == 1 else 'SAFE'}[/{color}]"
+
+    table = Table(title=f"Results: {Path(binary_path).name} (GraphSAGE GNN)", box=box.ROUNDED)
+    table.add_column("Binary",     style="cyan", no_wrap=True)
+    table.add_column("Verdict",    style="bold")
+    table.add_column("Confidence", justify="right")
+    table.add_column("Nodes",      justify="right")
+    table.add_column("Edges",      justify="right")
+    table.add_row(
+        Path(binary_path).name, verdict, f"{conf:.1%}",
+        str(g.num_nodes), str(g.num_edges),
+    )
+    console.print(table)
+    console.print(
+        f"\n[{color}]Binary classified as {'VULNERABLE' if pred==1 else 'SAFE'} "
+        f"({conf:.1%} confidence).[/{color}]"
+    )
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -193,12 +259,13 @@ Examples:
   python predict.py ai_sec_lab/binaries/arm_stack_vuln_0_x86_O0
   python predict.py path/to/binary --model ghidra
   python predict.py path/to/binary --model angr
+  python predict.py path/to/binary --model graphsage
         """,
     )
     parser.add_argument("binary", help="Path to the ELF binary to analyse")
     parser.add_argument(
         "--model",
-        choices=["tfidf", "ghidra", "angr"],
+        choices=["tfidf", "ghidra", "angr", "graphsage"],
         default="tfidf",
         help="Which model to use (default: tfidf)",
     )
@@ -212,8 +279,10 @@ Examples:
         predict_tfidf(args.binary)
     elif args.model == "ghidra":
         predict_ghidra(args.binary)
-    else:
+    elif args.model == "angr":
         predict_angr(args.binary)
+    else:
+        predict_graphsage(args.binary)
 
 
 if __name__ == "__main__":
