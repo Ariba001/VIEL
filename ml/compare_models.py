@@ -4,12 +4,9 @@ Cross-model comparison report for VIEL vulnerability detection.
 Common hold-out test set: last 20% of sorted binaries from labels.csv (240 bins).
 
 Function-level models (TF-IDF, angr RF, Ghidra RF):
-  Trained with function-name labels (1 if "vuln" in name).
-  Aggregated to binary level via max-probability across functions.
-  NOTE: race and use_after_free binaries have no function named "vuln*"
-  (angr couldn't recover debug symbol names for those templates), so
-  function-level models cannot learn to detect those vulnerability types.
-  This is a dataset labeling limitation, not a model deficiency.
+  Trained with binary-level labels from labels.csv propagated to every
+  function row. Aggregated to binary level via max-probability across
+  functions at inference time.
 
 GraphSAGE:
   Trained with binary-level labels from labels.csv (ground-truth correct).
@@ -281,11 +278,6 @@ for name, m in summary.items():
           f"{m['recall']:>7.4f}  {m['f1']:>7.4f}  {m['roc_auc']:>7.4f}  "
           f"{m['n_binaries']:>5}")
 print("=" * 72)
-print()
-print("NOTE: race / use_after_free vulnerable functions are named sub_XXXX")
-print("      (angr lost debug symbols for those templates), so function-")
-print("      level models were never trained to detect them.")
-print("      GraphSAGE uses binary-level labels and does not have this gap.")
 print()
 
 pd.DataFrame([{"model": k, **v} for k, v in summary.items()]).to_csv(

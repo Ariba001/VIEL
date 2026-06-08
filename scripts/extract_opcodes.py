@@ -4,10 +4,11 @@ Extract per-function opcode token sequences from ELF binaries.
 Produces ai_sec_lab/opcode_dataset_semantic.csv with columns:
     binary, function, tokens, label
 
-One row per function (not per binary). Labels are derived from the
-function name: any function whose name contains 'vuln' gets label=1.
-Falls back to binary-level label from labels.csv when the binary is
-stripped (no .symtab) and whole-binary mode is used instead.
+One row per function (not per binary). Label comes from labels.csv
+(binary-level ground truth): every function in a vulnerable binary
+receives label=1, every function in a safe binary label=0. This
+covers vulnerability types (race, use_after_free) where the vulnerable
+function is not named "vuln*".
 """
 
 import os
@@ -44,8 +45,8 @@ def main():
         functions = extract_functions_from_binary(path)
 
         if functions:
+            label = binary_labels.get(binary_name, 0)
             for func in functions:
-                label = 1 if "vuln" in func["function"].lower() else 0
                 rows.append([binary_name, func["function"], func["tokens"], label])
         else:
             # Stripped binary — fall back to whole-binary label
