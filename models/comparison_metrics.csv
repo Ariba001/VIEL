@@ -1,0 +1,5 @@
+model,accuracy,precision,recall,f1,roc_auc,n_binaries
+TF-IDF + LR,0.6667,1.0,0.3333,0.5,0.8472,240
+angr RF,0.6667,1.0,0.3333,0.5,0.6667,240
+Ghidra RF,0.5556,1.0,0.3333,0.5,0.7083,180
+GraphSAGE,0.8333,0.7857,0.9167,0.8462,0.8472,240
