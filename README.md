@@ -12,9 +12,14 @@ source code**, using a combination of static analysis and machine learning.
 |---|---|---|
 | Dataset generation | `gcc` (C templates → ELF binaries) | `ai_sec_lab/binaries/` + `labels.csv` |
 | Opcode extraction | `pyelftools` + `capstone` | `opcode_dataset_semantic.csv` |
-| ML training | `scikit-learn` (TF-IDF + Logistic Regression) | classification report |
+| ML training (opcodes) | `scikit-learn` (TF-IDF + Logistic Regression) | classification report |
 | CFG feature extraction | Ghidra headless + Java script | `report.csv` (17 features per function) |
-| Static analysis utilities | `angr` | CFG JSON, function list, symbolic paths |
+| CFG feature extraction | `angr` (per-function) | `angr_dataset.csv` (15 features per function) |
+| ML training (angr features) | `scikit-learn` (Random Forest) | function-level classification report |
+| Call-graph construction | `angr` (whole-binary function call graph) | `graphs.pt` (PyTorch Geometric `Data` per binary) |
+| Binary-level GNN | GraphSAGE (graph classification) | "is this binary vulnerable?" |
+| Function-level GNN | GraphSAGE (node classification) | "which function is vulnerable?" (localization) |
+| Cross-model comparison | — | ROC/confusion/F1 plots across all models |
 
 **Vulnerability types covered:** buffer overflow, heap overflow, format string,
 integer overflow, use-after-free, double free, null dereference, out-of-bounds,
@@ -138,6 +143,68 @@ print(evaluate("analysis/autoghidra/analysed_output/report.csv"))
 # -> 'High Risk' / 'Medium Risk' / 'Low Risk'
 ```
 
+### Step 6 — angr per-function features + Random Forest
+
+```bash
+python scripts/extract_angr_features.py     # -> ai_sec_lab/angr_dataset.csv
+python ml/vuln_detection/angr_classifier.py # -> models/angr_rf.pkl
+```
+
+### Step 7 — Build function call graphs and train the GNNs
+
+```bash
+python scripts/build_graphs.py              # -> ai_sec_lab/graphs.pt
+python ml/vuln_detection/gstrain.py         # binary-level GraphSAGE -> models/graphsage.pt
+python ml/vuln_detection/gstrain_node.py    # function-level GraphSAGE -> models/graphsage_node.pt
+```
+
+Each binary becomes one graph: user-defined functions are nodes (15 angr CFG
+features + 2 type flags), edges are call relationships, and imported library
+functions (`strcpy`, `malloc`, ...) are added as extra nodes so patterns like
+`main -> vulnerable -> strcpy` show up as graph topology.
+
+- **`gstrain.py`** trains a graph-classification model: one verdict per binary.
+- **`gstrain_node.py`** trains a node-classification model: one verdict per
+  *function*, enabling localization ("which function is vulnerable?") instead
+  of just detection. Ground truth comes from
+  `analysis/static/vuln_labels.py`, which maps each of the 30 synthetic
+  templates to the function that actually carries its injected vuln/safe
+  pattern (falling back to `main` if the optimizer inlined that function
+  away). It uses a stratified 80/20 split by (template, variation) rather
+  than the sorted split used elsewhere, so every vulnerability type is
+  represented in both train and test — necessary for a meaningful
+  localization score, since the sorted split holds out entire vulnerability
+  families. On held-out variations it reaches **100% top-1 localization
+  accuracy** across all 15 vulnerable template types, at the cost of low
+  node-level precision (~0.23) — it never misses the real vulnerable
+  function (recall 1.0), but flags some structurally-similar safe functions
+  as candidates too. Treat it as a triage ranking, not a definitive verdict.
+
+### Step 8 — Compare all models
+
+```bash
+python ml/compare_models.py
+```
+
+Evaluates TF-IDF+LR, angr RF, Ghidra RF, and binary-level GraphSAGE on the
+same held-out set of binaries and writes `models/comparison_metrics.csv`
+plus ROC/confusion/F1 plots to `models/`.
+
+### Step 9 — Predict on a new binary
+
+```bash
+python predict.py path/to/binary --model tfidf       # opcode TF-IDF + LR
+python predict.py path/to/binary --model angr         # angr RF, per function
+python predict.py path/to/binary --model ghidra        # Ghidra RF, per function
+python predict.py path/to/binary --model graphsage      # binary-level GNN verdict
+python predict.py path/to/binary --model localize        # function-level GNN localization
+```
+
+`--model localize` is the function-level GNN: it ranks every user-defined
+function in the binary by predicted vulnerability probability, so instead of
+"this binary is vulnerable" it answers "this specific function looks
+vulnerable."
+
 ---
 
 ## Directory structure
@@ -148,7 +215,9 @@ VIEL/
 │   ├── binaries/          # compiled ELF binaries (generated)
 │   ├── c_src/             # generated C source files
 │   ├── labels.csv         # binary name -> label (0=safe, 1=vuln)
-│   └── opcode_dataset_semantic.csv   # opcode token sequences
+│   ├── opcode_dataset_semantic.csv   # opcode token sequences
+│   ├── angr_dataset.csv   # per-function angr CFG features (generated)
+│   └── graphs.pt          # per-binary function call graphs (generated)
 │
 ├── analysis/
 │   ├── autoghidra/
@@ -161,20 +230,33 @@ VIEL/
 │   │   └── analysed_output/
 │   │       └── report.csv         # Ghidra output (generated)
 │   └── static/
+│       ├── angr_engine.py         # angr per-function feature extraction
+│       ├── graph_builder.py       # angr function call graph -> PyG Data
+│       ├── vuln_labels.py         # per-function ground truth for the synthetic dataset
 │       ├── extract_cfg.py         # angr CFG -> JSON
 │       ├── extract_functions.py   # angr function list -> JSON
 │       └── symbolic/
 │           └── symbolic_features.py   # angr symbolic execution
 │
 ├── ml/
+│   ├── compare_models.py          # cross-model comparison report
 │   └── vuln_detection/
-│       └── logisticregression.py  # TF-IDF + LR classifier
+│       ├── logisticregression.py  # TF-IDF + LR classifier
+│       ├── angr_classifier.py     # Random Forest on angr CFG features
+│       ├── ghidra_classifier.py   # Random Forest on Ghidra CFG features
+│       ├── graphsage.py           # binary-level GraphSAGE model
+│       ├── gstrain.py             # trains graphsage.py (graph classification)
+│       ├── graphsage_node.py      # function-level GraphSAGE model
+│       └── gstrain_node.py        # trains graphsage_node.py (node classification)
 │
 ├── scripts/
 │   ├── generate_dataset.py        # compile C templates -> ELF binaries
 │   ├── extract_opcodes.py         # ELF -> opcode token sequences
+│   ├── extract_angr_features.py   # ELF -> ai_sec_lab/angr_dataset.csv
+│   ├── build_graphs.py            # ELF -> ai_sec_lab/graphs.pt
 │   └── feature_extractor.py      # basic capstone disassembly helper
 │
+├── predict.py              # CLI: run any trained model on a new binary
 ├── .env.example           # copy to .env and fill in GHIDRA_HEADLESS
 ├── Dockerfile
 ├── docker-compose.yml

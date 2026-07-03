@@ -14,9 +14,17 @@ Graph representation (upgraded):
     as graph topology rather than encoding it only as a node feature.
 
 GRAPH_NODE_FEATURES = len(FEATURES) + 2  (exported for model/trainer use)
+
+Per-node labels (y_node):
+    Each Data object also carries y_node [N] — a 0/1 label per node
+    identifying which *function* carries the injected vuln/safe pattern
+    (see analysis.static.vuln_labels). Library nodes are always 0. This
+    enables function-level localization (node classification) in addition
+    to the existing binary-level (graph classification) task.
 """
 
 import logging
+from pathlib import Path
 
 logging.getLogger("angr").setLevel(logging.ERROR)
 logging.getLogger("cle").setLevel(logging.ERROR)
@@ -28,6 +36,7 @@ import torch
 from torch_geometric.data import Data
 
 from analysis.static.angr_engine import extract_features_from_project, FEATURES, UNSAFE_FUNCS
+from analysis.static.vuln_labels import node_labels
 
 # Node feature dimension: 15 per-function angr features + 2 node-type flags
 GRAPH_NODE_FEATURES = len(FEATURES) + 2
@@ -120,8 +129,23 @@ def build_binary_graph(binary_path, label):
         else torch.zeros((2, 0), dtype=torch.long)
     )
 
+    # ── Per-function (node-level) vulnerability labels ────────────────────────
+    binary_name = Path(binary_path).name
+    func_names = [f["function"] for f in func_features] + [name for name, _ in lib_nodes]
+    y_node = torch.tensor(
+        node_labels(binary_name, label, func_names), dtype=torch.long
+    )
+    # True for user-function nodes, False for library nodes — only user
+    # functions are eligible localization targets.
+    is_user_mask = torch.zeros(N, dtype=torch.bool)
+    is_user_mask[: len(func_features)] = True
+
     return Data(
         x=x,
         edge_index=edge_index,
         y=torch.tensor([label], dtype=torch.long),
+        y_node=y_node,
+        is_user_mask=is_user_mask,
+        func_names=func_names,
+        binary_name=binary_name,
     )

@@ -19,8 +19,13 @@ import angr  # noqa: E402
 UNSAFE_FUNCS = frozenset({
     "gets", "strcpy", "strcat", "sprintf", "vsprintf", "snprintf",
     "scanf", "fscanf", "sscanf", "system", "popen",
-    "memcpy", "memmove", "strncpy",
+    "memcpy", "memmove",
 })
+# strncpy is deliberately excluded: it's the bounded/safe replacement used by
+# every "safe" template in this dataset (scripts/generate_dataset.py), so
+# flagging it as "unsafe" made every safe/vuln pair share an identical
+# has_unsafe_call feature — a real source of false positives (e.g. the angr
+# RF's 0.60 precision) rather than a signal.
 
 COND_JUMP_MNEMONICS = frozenset({
     "je", "jne", "jz", "jnz", "jg", "jge", "jl", "jle",

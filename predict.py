@@ -248,6 +248,74 @@ def predict_graphsage(binary_path: str):
     )
 
 
+# ── GraphSAGE node classifier — function-level localization ──────────────────
+
+def predict_localize(binary_path: str):
+    model_path  = MODELS_DIR / "graphsage_node.pt"
+    scaler_path = MODELS_DIR / "graphsage_node_scaler.pt"
+
+    for p, name in [(model_path, "graphsage_node.pt"), (scaler_path, "graphsage_node_scaler.pt")]:
+        if not p.exists():
+            console.print(f"[red]{name} not found.[/red]")
+            console.print("Run: [bold]python scripts/build_graphs.py[/bold]")
+            console.print("Then: [bold]python ml/vuln_detection/gstrain_node.py[/bold]")
+            sys.exit(1)
+
+    try:
+        import torch
+        import torch.nn.functional as F
+        from analysis.static.graph_builder import build_binary_graph, GRAPH_NODE_FEATURES
+        from ml.vuln_detection.graphsage_node import GraphSAGENodeClassifier
+    except ImportError as e:
+        console.print(f"[red]Import error: {e}[/red]")
+        console.print("Run: [bold]pip install angr torch torch_geometric[/bold]")
+        sys.exit(1)
+
+    console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (GraphSAGE function-level localization)...")
+    console.print("[dim]Building function call graph — may take a few seconds...[/dim]")
+
+    g = build_binary_graph(binary_path, label=0)
+    if g is None:
+        console.print("[yellow]Could not build graph — binary may not be ELF or is unsupported.[/yellow]")
+        return
+
+    scaler = torch.load(scaler_path, weights_only=True)
+    g.x = (g.x - scaler["mean"]) / scaler["std"]
+
+    model = GraphSAGENodeClassifier(in_channels=GRAPH_NODE_FEATURES)
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    model.eval()
+
+    with torch.no_grad():
+        out  = model(g.x, g.edge_index)
+        prob = F.softmax(out, dim=1)[:, 1]
+
+    user_idx = [i for i in range(g.num_nodes) if g.is_user_mask[i]]
+    rows = sorted(
+        ((g.func_names[i], prob[i].item()) for i in user_idx),
+        key=lambda r: r[1], reverse=True,
+    )
+
+    table = Table(title=f"Function-level localization: {Path(binary_path).name}", box=box.ROUNDED)
+    table.add_column("Function",   style="cyan", no_wrap=True)
+    table.add_column("Vuln score", justify="right")
+    table.add_column("Verdict",    style="bold")
+
+    for name, score in rows:
+        verdict = "[red]SUSPECT[/red]" if score > 0.5 else ""
+        table.add_row(name, f"{score:.1%}", verdict)
+
+    console.print(table)
+
+    if rows and rows[0][1] > 0.5:
+        console.print(
+            f"\n[red]Most likely vulnerable function: {rows[0][0]} "
+            f"({rows[0][1]:.1%} confidence).[/red]"
+        )
+    else:
+        console.print("\n[green]No function scored above 50% — binary looks safe.[/green]")
+
+
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main():
@@ -260,14 +328,16 @@ Examples:
   python predict.py path/to/binary --model ghidra
   python predict.py path/to/binary --model angr
   python predict.py path/to/binary --model graphsage
+  python predict.py path/to/binary --model localize
         """,
     )
     parser.add_argument("binary", help="Path to the ELF binary to analyse")
     parser.add_argument(
         "--model",
-        choices=["tfidf", "ghidra", "angr", "graphsage"],
+        choices=["tfidf", "ghidra", "angr", "graphsage", "localize"],
         default="tfidf",
-        help="Which model to use (default: tfidf)",
+        help="Which model to use (default: tfidf). 'localize' points to the "
+             "specific function most likely to be vulnerable.",
     )
     args = parser.parse_args()
 
@@ -281,6 +351,8 @@ Examples:
         predict_ghidra(args.binary)
     elif args.model == "angr":
         predict_angr(args.binary)
+    elif args.model == "localize":
+        predict_localize(args.binary)
     else:
         predict_graphsage(args.binary)
 
