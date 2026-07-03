@@ -2,7 +2,7 @@
 name = "viel"
 version = "0.1.0"
 description = "Vulnerability Intelligence and Exploit Learning — binary vulnerability detection using static analysis and ML"
-requires-python = ">=3.10,<3.12"
+requires-python = ">=3.10"
 dependencies = [
     "angr",
     "capstone",
@@ -18,12 +18,22 @@ dependencies = [
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",
     "rich>=14.3.3",
+    "torch",
+    "torch_geometric",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest"]
 
 [project.scripts]
 viel-generate  = "scripts.generate_dataset:main"
 viel-opcodes   = "scripts.extract_opcodes:main"
 viel-ghidra    = "analysis.autoghidra.execute:run_analysis"
+viel           = "predict:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["analysis", "ml", "scripts"]
+include = ["predict.py"]
 
 [build-system]
 requires = ["hatchling"]

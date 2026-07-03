@@ -12,3 +12,5 @@ pyelftools>=0.32
 pydantic>=2.12.5
 python-dotenv>=1.2.1
 rich>=14.3.3
+torch
+torch_geometric

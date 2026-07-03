@@ -11,6 +11,7 @@ Requirements:
 """
 
 import argparse
+import json
 import sys
 import os
 from pathlib import Path
@@ -184,7 +185,7 @@ def predict_angr(binary_path: str):
 
 # ── GraphSAGE GNN ─────────────────────────────────────────────────────────────
 
-def predict_graphsage(binary_path: str):
+def predict_graphsage(binary_path: str, json_output: bool = False):
     model_path  = MODELS_DIR / "graphsage.pt"
     scaler_path = MODELS_DIR / "graphsage_scaler.pt"
 
@@ -206,11 +207,15 @@ def predict_graphsage(binary_path: str):
         console.print("Run: [bold]pip install angr torch torch_geometric[/bold]")
         sys.exit(1)
 
-    console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (GraphSAGE GNN)...")
-    console.print("[dim]Building function call graph — may take a few seconds...[/dim]")
+    if not json_output:
+        console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (GraphSAGE GNN)...")
+        console.print("[dim]Building function call graph — may take a few seconds...[/dim]")
 
     g = build_binary_graph(binary_path, label=0)
     if g is None:
+        if json_output:
+            print(json.dumps({"binary": Path(binary_path).name, "model": "graphsage", "error": "could not build graph"}))
+            sys.exit(2)
         console.print("[yellow]Could not build graph — binary may not be ELF or is unsupported.[/yellow]")
         return
 
@@ -227,6 +232,17 @@ def predict_graphsage(binary_path: str):
         prob = F.softmax(out, dim=1)
         pred = out.argmax(dim=1).item()
         conf = prob[0, pred].item()
+
+    if json_output:
+        print(json.dumps({
+            "binary": Path(binary_path).name,
+            "model": "graphsage",
+            "verdict": "VULNERABLE" if pred == 1 else "SAFE",
+            "confidence": round(conf, 4),
+            "num_nodes": g.num_nodes,
+            "num_edges": g.num_edges,
+        }))
+        sys.exit(1 if pred == 1 else 0)
 
     color   = "red" if pred == 1 else "green"
     verdict = f"[{color}]{'VULNERABLE' if pred == 1 else 'SAFE'}[/{color}]"
@@ -250,7 +266,7 @@ def predict_graphsage(binary_path: str):
 
 # ── GraphSAGE node classifier — function-level localization ──────────────────
 
-def predict_localize(binary_path: str):
+def predict_localize(binary_path: str, json_output: bool = False):
     model_path  = MODELS_DIR / "graphsage_node.pt"
     scaler_path = MODELS_DIR / "graphsage_node_scaler.pt"
 
@@ -271,11 +287,15 @@ def predict_localize(binary_path: str):
         console.print("Run: [bold]pip install angr torch torch_geometric[/bold]")
         sys.exit(1)
 
-    console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (GraphSAGE function-level localization)...")
-    console.print("[dim]Building function call graph — may take a few seconds...[/dim]")
+    if not json_output:
+        console.print(f"\nAnalysing [cyan]{Path(binary_path).name}[/cyan] (GraphSAGE function-level localization)...")
+        console.print("[dim]Building function call graph — may take a few seconds...[/dim]")
 
     g = build_binary_graph(binary_path, label=0)
     if g is None:
+        if json_output:
+            print(json.dumps({"binary": Path(binary_path).name, "model": "localize", "error": "could not build graph"}))
+            sys.exit(2)
         console.print("[yellow]Could not build graph — binary may not be ELF or is unsupported.[/yellow]")
         return
 
@@ -295,6 +315,15 @@ def predict_localize(binary_path: str):
         ((g.func_names[i], prob[i].item()) for i in user_idx),
         key=lambda r: r[1], reverse=True,
     )
+
+    if json_output:
+        print(json.dumps({
+            "binary": Path(binary_path).name,
+            "model": "localize",
+            "functions": [{"name": name, "score": round(score, 4)} for name, score in rows],
+            "top_suspect": rows[0][0] if rows and rows[0][1] > 0.5 else None,
+        }))
+        sys.exit(1 if rows and rows[0][1] > 0.5 else 0)
 
     table = Table(title=f"Function-level localization: {Path(binary_path).name}", box=box.ROUNDED)
     table.add_column("Function",   style="cyan", no_wrap=True)
@@ -339,6 +368,13 @@ Examples:
         help="Which model to use (default: tfidf). 'localize' points to the "
              "specific function most likely to be vulnerable.",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Machine-readable JSON on stdout instead of a table (graphsage/localize "
+             "only). Exit code 1 if vulnerable/a suspect function was found, 0 otherwise "
+             "-- suitable for CI gating.",
+    )
     args = parser.parse_args()
 
     if not Path(args.binary).exists():
@@ -352,9 +388,9 @@ Examples:
     elif args.model == "angr":
         predict_angr(args.binary)
     elif args.model == "localize":
-        predict_localize(args.binary)
+        predict_localize(args.binary, json_output=args.json)
     else:
-        predict_graphsage(args.binary)
+        predict_graphsage(args.binary, json_output=args.json)
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ race condition, command injection.
 
 | Tool | Required for | Notes |
 |---|---|---|
-| Python 3.10–3.11 | everything | 3.12 not yet supported by angr |
+| Python 3.10+ | everything | tested through 3.14 with current angr/torch versions |
 | `gcc` | `generate_dataset.py` | Linux/WSL2/Docker only |
 | [Ghidra](https://ghidra-sre.org/) | `execute.py` | free, runs on Windows too |
 | Java 17+ | Ghidra | `openjdk-17-jre-headless` |
@@ -53,6 +53,8 @@ source .venv/bin/activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
+# — or, to also get the `viel` CLI command on your PATH:
+pip install -e ".[dev]"
 
 # 4. Configure Ghidra path
 cp .env.example .env
@@ -205,6 +207,51 @@ function in the binary by predicted vulnerability probability, so instead of
 "this binary is vulnerable" it answers "this specific function looks
 vulnerable."
 
+Add `--json` to `graphsage`/`localize` for machine-readable output and a
+CI-friendly exit code (`1` if vulnerable/a suspect function was found, `0`
+otherwise, `2` on a build error) instead of a Rich table. Or use the
+installed console script directly: `viel path/to/binary --model localize --json`.
+
+### Step 10 — Ingest the Juliet Test Suite (optional, real-world CWE data)
+
+> Requires a Linux gcc toolchain (WSL2/Docker on Windows, same as Step 1).
+
+The synthetic dataset above is ~30 hand-written templates — useful for
+proving the pipeline works, but far too narrow to generalize to real
+vulnerabilities. `scripts/ingest_juliet.py` pulls in the
+[NIST Juliet Test Suite for C/C++](https://samate.nist.gov/SARD/test-suites/112)
+instead: real, NIST-curated test cases spanning ~118 CWE categories.
+
+```bash
+git clone https://github.com/arichardson/juliet-test-suite-c ~/juliet_src
+
+python3 scripts/ingest_juliet.py \
+    --juliet-src ~/juliet_src \
+    --cwes CWE121_Stack_Based_Buffer_Overflow CWE122_Heap_Based_Buffer_Overflow \
+           CWE134_Uncontrolled_Format_String CWE190_Integer_Overflow \
+           CWE369_Divide_by_Zero CWE415_Double_Free CWE416_Use_After_Free \
+           CWE457_Use_of_Uninitialized_Variable CWE476_NULL_Pointer_Dereference \
+           CWE690_NULL_Deref_From_Return CWE78_OS_Command_Injection \
+    --per-cwe-limit 25 --opt-levels O0 O2
+#  -> ai_sec_lab/juliet/{binaries/,labels.csv}
+
+python scripts/build_graphs.py --dataset juliet           # -> ai_sec_lab/juliet/graphs.pt
+python ml/vuln_detection/gstrain_node.py --dataset juliet  # -> models/graphsage_node_juliet.pt
+```
+
+Each Juliet test case compiles into two separate binaries (`-DOMITGOOD` /
+`-DOMITBAD`) so ground truth needs no lookup table (see
+`analysis/static/juliet_labels.py`): a bad binary's vulnerable function is
+whichever one's name ends in `_bad`. On the pilot ingestion above (11 CWE
+categories, 1100 binaries, held-out test cases never seen in training) this
+reaches **92.7% function-level localization accuracy** — real evidence the
+approach transfers beyond the synthetic templates, not just a synthetic-only
+result. `--per-cwe-limit` and `--cwes` scale up to the full suite (~64k test
+cases across 118 CWEs); drop `--per-cwe-limit` and add more `--cwes` to go
+further, but note this will take considerably longer to compile and to build
+graphs for, and produces binaries far too large in aggregate to commit to git
+(see `.gitignore`).
+
 ---
 
 ## Directory structure
@@ -217,7 +264,11 @@ VIEL/
 │   ├── labels.csv         # binary name -> label (0=safe, 1=vuln)
 │   ├── opcode_dataset_semantic.csv   # opcode token sequences
 │   ├── angr_dataset.csv   # per-function angr CFG features (generated)
-│   └── graphs.pt          # per-binary function call graphs (generated)
+│   ├── graphs.pt          # per-binary function call graphs (generated)
+│   └── juliet/            # ingested Juliet Test Suite dataset (generated, optional)
+│       ├── binaries/      # compiled bad/good ELF binaries (gitignored)
+│       ├── labels.csv     # binary name -> label (0=safe, 1=vuln)
+│       └── graphs.pt      # per-binary function call graphs
 │
 ├── analysis/
 │   ├── autoghidra/
@@ -232,7 +283,9 @@ VIEL/
 │   └── static/
 │       ├── angr_engine.py         # angr per-function feature extraction
 │       ├── graph_builder.py       # angr function call graph -> PyG Data
+│       ├── label_utils.py         # shared per-function label resolution logic
 │       ├── vuln_labels.py         # per-function ground truth for the synthetic dataset
+│       ├── juliet_labels.py       # per-function ground truth for the Juliet dataset
 │       ├── extract_cfg.py         # angr CFG -> JSON
 │       ├── extract_functions.py   # angr function list -> JSON
 │       └── symbolic/
@@ -247,14 +300,18 @@ VIEL/
 │       ├── graphsage.py           # binary-level GraphSAGE model
 │       ├── gstrain.py             # trains graphsage.py (graph classification)
 │       ├── graphsage_node.py      # function-level GraphSAGE model
-│       └── gstrain_node.py        # trains graphsage_node.py (node classification)
+│       └── gstrain_node.py        # trains graphsage_node.py (node classification; --dataset synthetic|juliet)
 │
 ├── scripts/
 │   ├── generate_dataset.py        # compile C templates -> ELF binaries
 │   ├── extract_opcodes.py         # ELF -> opcode token sequences
 │   ├── extract_angr_features.py   # ELF -> ai_sec_lab/angr_dataset.csv
-│   ├── build_graphs.py            # ELF -> ai_sec_lab/graphs.pt
+│   ├── build_graphs.py            # ELF -> graphs.pt (--dataset synthetic|juliet)
+│   ├── ingest_juliet.py           # NIST Juliet Test Suite -> ai_sec_lab/juliet/
 │   └── feature_extractor.py      # basic capstone disassembly helper
+│
+├── tests/
+│   └── test_predict_smoke.py      # CLI regression smoke tests (pytest)
 │
 ├── predict.py              # CLI: run any trained model on a new binary
 ├── .env.example           # copy to .env and fill in GHIDRA_HEADLESS

@@ -16,6 +16,8 @@ supervision) for training/evaluating function-level GNN localization.
 import re
 from pathlib import Path
 
+from analysis.static.label_utils import resolve_node_labels
+
 # template key -> name of the function that carries the vuln/safe pattern
 VULN_FUNCTION_BY_TEMPLATE = {
     "stack_overflow_vuln": "vuln",
@@ -86,18 +88,5 @@ def node_labels(binary_filename, binary_label, function_names):
     physically lives inside main's compiled body, so main is labelled
     instead. Returns all zeros if neither can be resolved.
     """
-    n = len(function_names)
-    if binary_label == 0:
-        return [0] * n
-
-    target = vulnerable_function_name(binary_filename)
-    if target is None:
-        return [0] * n
-
-    if target in function_names:
-        return [1 if name == target else 0 for name in function_names]
-
-    if target != "main" and "main" in function_names:
-        return [1 if name == "main" else 0 for name in function_names]
-
-    return [0] * n
+    target = vulnerable_function_name(binary_filename) if binary_label == 1 else None
+    return resolve_node_labels(binary_label, function_names, target)

@@ -25,6 +25,13 @@ test) with all 4 optimisation levels of a variation kept together on the
 same side, so every vulnerability type is represented in both splits and
 no near-duplicate (same source, different -O) leaks across the boundary.
 
+Two datasets are supported (--dataset flag):
+    synthetic (default) — ai_sec_lab/graphs.pt, ~30 hand-written templates
+    juliet               — ai_sec_lab/juliet/graphs.pt, real NIST Juliet
+                            Test Suite CWE test cases (scripts/ingest_juliet.py)
+Juliet outputs get a "_juliet" suffix so they don't clobber the synthetic
+model.
+
 Input : ai_sec_lab/graphs.pt            (produced by scripts/build_graphs.py)
 Output: models/graphsage_node.pt        (model weights)
         models/graphsage_node_scaler.pt (feature normalisation stats)
@@ -32,12 +39,14 @@ Output: models/graphsage_node.pt        (model weights)
 
 Run:
     python ml/vuln_detection/gstrain_node.py
+    python ml/vuln_detection/gstrain_node.py --dataset juliet
 """
 
 import os
 import sys
 import re
 import random
+import argparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -54,10 +63,38 @@ from torch_geometric.loader import DataLoader
 from ml.vuln_detection.graphsage_node import GraphSAGENodeClassifier
 from analysis.static.graph_builder import GRAPH_NODE_FEATURES
 from analysis.static.vuln_labels import template_key, parse_binary_name
+from analysis.static.juliet_labels import parse_binary_name as juliet_parse_binary_name
+from analysis.static.juliet_labels import cwe_category
 
-GRAPHS_PT  = "ai_sec_lab/graphs.pt"
+
+def _synthetic_group(binary_name):
+    tmpl, variation, _opt = parse_binary_name(binary_name)
+    return tmpl, variation
+
+
+def _juliet_group(binary_name):
+    cwe, testcase_id, _opt, _variant = juliet_parse_binary_name(binary_name)
+    return cwe, testcase_id
+
+
+DATASETS = {
+    "synthetic": dict(graphs="ai_sec_lab/graphs.pt", group_fn=_synthetic_group,
+                       type_fn=template_key, suffix=""),
+    "juliet":    dict(graphs="ai_sec_lab/juliet/graphs.pt", group_fn=_juliet_group,
+                       type_fn=cwe_category, suffix="_juliet"),
+}
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--dataset", choices=DATASETS, default="synthetic")
+args = ap.parse_args()
+cfg = DATASETS[args.dataset]
+
+GRAPHS_PT  = cfg["graphs"]
 MODELS_DIR = Path("models")
 MODELS_DIR.mkdir(exist_ok=True)
+MODEL_PATH  = MODELS_DIR / f"graphsage_node{cfg['suffix']}.pt"
+SCALER_PATH = MODELS_DIR / f"graphsage_node{cfg['suffix']}_scaler.pt"
+CURVE_PATH  = MODELS_DIR / f"graphsage_node{cfg['suffix']}_loss.png"
 
 SEED         = 42
 HIDDEN       = 64
@@ -71,22 +108,22 @@ PATIENCE     = 20
 random.seed(SEED)
 torch.manual_seed(SEED)
 
-# ── Load graphs, stratified 80/20 split by (template, variation) ──────────────
-print("Loading graphs...")
+# ── Load graphs, stratified 80/20 split by (vuln type, variation/testcase) ────
+print(f"Loading graphs ({args.dataset})...")
 graphs = torch.load(GRAPHS_PT, weights_only=False)
 
-by_template = defaultdict(set)
+by_group = defaultdict(set)
 for g in graphs:
-    tmpl, variation, _opt = parse_binary_name(g.binary_name)
-    by_template[tmpl].add(variation)
+    top, sub = cfg["group_fn"](g.binary_name)
+    by_group[top].add(sub)
 
-test_variations = {}  # template -> set of variation indices held out
+test_subgroups = {}  # top-level group -> set of sub-group ids held out
 rng = random.Random(SEED)
-for tmpl, variations in by_template.items():
-    variations = sorted(variations)
-    rng.shuffle(variations)
-    n_test = max(1, round(0.2 * len(variations)))
-    test_variations[tmpl] = set(variations[:n_test])
+for top, subs in by_group.items():
+    subs = sorted(subs)
+    rng.shuffle(subs)
+    n_test = max(1, round(0.2 * len(subs)))
+    test_subgroups[top] = set(subs[:n_test])
 
 
 def resolved(g):
@@ -96,8 +133,8 @@ def resolved(g):
 
 
 def is_test(g):
-    tmpl, variation, _opt = parse_binary_name(g.binary_name)
-    return variation in test_variations[tmpl]
+    top, sub = cfg["group_fn"](g.binary_name)
+    return sub in test_subgroups[top]
 
 
 train_all = [g for g in graphs if not is_test(g)]
@@ -108,7 +145,7 @@ n_excluded = (len(train_all) - len(train_graphs)) + (len(test_all) - len(test_gr
 
 print(f"  Train: {len(train_graphs)}  |  Test: {len(test_graphs)}  "
       f"(excluded {n_excluded} vulnerable binaries with unresolved localization target)")
-print(f"  {len(by_template)} vulnerability templates, all represented in both splits")
+print(f"  {len(by_group)} vulnerability types, all represented in both splits")
 
 # ── Feature normalisation (fit on training nodes) ─────────────────────────────
 all_x = torch.cat([g.x for g in train_graphs], dim=0)
@@ -125,8 +162,8 @@ def normalise(data_list):
 train_graphs = normalise(train_graphs)
 test_graphs  = normalise(test_graphs)
 
-torch.save({"mean": mean, "std": std}, MODELS_DIR / "graphsage_node_scaler.pt")
-print("Scaler saved -> models/graphsage_node_scaler.pt")
+torch.save({"mean": mean, "std": std}, SCALER_PATH)
+print(f"Scaler saved -> {SCALER_PATH}")
 
 train_loader = DataLoader(train_graphs, batch_size=BATCH_SIZE, shuffle=True)
 test_loader  = DataLoader(test_graphs,  batch_size=BATCH_SIZE, shuffle=False)
@@ -197,7 +234,7 @@ def evaluate(loader):
             loc_correct += correct
             loc_total   += 1
 
-            vtype = template_key(batch.binary_name[gi]) or "unknown"
+            vtype = cfg["type_fn"](batch.binary_name[gi]) or "unknown"
             loc_by_type[vtype][0] += correct
             loc_by_type[vtype][1] += 1
 
@@ -225,7 +262,7 @@ for epoch in range(1, EPOCHS + 1):
         best_loc_acc = loc_acc
         best_epoch   = epoch
         patience_ctr = 0
-        torch.save(model.state_dict(), MODELS_DIR / "graphsage_node.pt")
+        torch.save(model.state_dict(), MODEL_PATH)
         marker = " *"
     else:
         patience_ctr += 1
@@ -238,7 +275,7 @@ for epoch in range(1, EPOCHS + 1):
         break
 
 # ── Final evaluation ──────────────────────────────────────────────────────────
-model.load_state_dict(torch.load(MODELS_DIR / "graphsage_node.pt", weights_only=True))
+model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
 node_acc, loc_acc, preds, labels, probs, loc_by_type = evaluate(test_loader)
 
 print(f"\n--- Test results (best epoch {best_epoch}) ---")
@@ -268,8 +305,8 @@ plt.ylabel("Train Loss (node-level, class-weighted)")
 plt.title("GraphSAGE Node Classifier — Training Loss")
 plt.legend()
 plt.tight_layout()
-curve_path = MODELS_DIR / "graphsage_node_loss.png"
+curve_path = CURVE_PATH
 plt.savefig(curve_path, bbox_inches="tight")
 plt.close()
 print(f"\nTraining curve -> {curve_path}")
-print(f"Model saved     -> models/graphsage_node.pt")
+print(f"Model saved     -> {MODEL_PATH}")

@@ -36,13 +36,13 @@ import torch
 from torch_geometric.data import Data
 
 from analysis.static.angr_engine import extract_features_from_project, FEATURES, UNSAFE_FUNCS
-from analysis.static.vuln_labels import node_labels
+from analysis.static.vuln_labels import node_labels as _synthetic_node_labels
 
 # Node feature dimension: 15 per-function angr features + 2 node-type flags
 GRAPH_NODE_FEATURES = len(FEATURES) + 2
 
 
-def build_binary_graph(binary_path, label):
+def build_binary_graph(binary_path, label, node_label_fn=_synthetic_node_labels):
     """
     Build a PyG Data object for one binary.
 
@@ -50,6 +50,11 @@ def build_binary_graph(binary_path, label):
     Called PLT library functions are added as extra nodes with zero CFG
     features and two type flags (is_library=1, is_unsafe_lib={0,1}).
     Edges cover both user->user and user->library call relationships.
+
+    node_label_fn(binary_name, label, func_names) -> list[int] resolves
+    per-function ground truth (see analysis.static.vuln_labels for the
+    synthetic ai_sec_lab dataset, analysis.static.juliet_labels for the
+    ingested Juliet Test Suite dataset).
 
     Returns None if angr cannot load the binary or no user functions exist.
     """
@@ -133,7 +138,7 @@ def build_binary_graph(binary_path, label):
     binary_name = Path(binary_path).name
     func_names = [f["function"] for f in func_features] + [name for name, _ in lib_nodes]
     y_node = torch.tensor(
-        node_labels(binary_name, label, func_names), dtype=torch.long
+        node_label_fn(binary_name, label, func_names), dtype=torch.long
     )
     # True for user-function nodes, False for library nodes — only user
     # functions are eligible localization targets.

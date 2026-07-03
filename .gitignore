@@ -18,6 +18,11 @@ ai_sec_lab/c_src/
 analysis/autoghidra/analysed_output/report.csv
 ghidra_projects/
 
+# Juliet Test Suite ingestion (scripts/ingest_juliet.py) — regenerable from
+# the public NIST source, and at full scale (~64k testcases) too large to
+# track in git. labels.csv is kept (small, and it IS the ground truth).
+ai_sec_lab/juliet/binaries/
+
 # Compiled binaries (re-created by generate_dataset.py)
 format
 uaf
